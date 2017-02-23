@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 
 import Scroller from 'react-native-scroller';
-import {createResponder} from 'react-native-gesture-responder';
+import { createResponder } from 'react-native-gesture-responder';
 import TimerMixin from 'react-timer-mixin';
 import reactMixin from 'react-mixin';
 
@@ -84,11 +84,7 @@ export default class ViewPager extends Component {
     });
   }
 
-  onResponderGrant(evt, gestureState) {
-    this.scroller.forceFinished(true);
-    this.activeGesture = true;
-    this.onPageScrollStateChanged('dragging');
-  }
+
 
   onResponderMove(evt, gestureState) {
     let dx = gestureState.moveX - gestureState.previousMoveX;
@@ -100,41 +96,6 @@ export default class ViewPager extends Component {
     if (!disableSettle) {
       this.settlePage(gestureState.vx);
     }
-  }
-
-  render() {
-    let dataSource = this.state.dataSource;
-    if (this.state.width && this.state.height) {
-      let list = this.props.pageDataArray;
-      if (!list) {
-        list = [];
-      }
-      dataSource = dataSource.cloneWithRows(list);
-      this.pageCount = list.length;
-    }
-
-    let gestureResponder = this.gestureResponder;
-    if (!this.props.scrollEnabled || this.pageCount <= 0) {
-      gestureResponder = {};
-    }
-
-    return (
-      <View
-        {...this.props}
-        style={[this.props.style, {flex: 1}]}
-        {...gestureResponder}>
-        <ListView
-          style={{flex: 1}}
-          ref='innerListView'
-          scrollEnabled={false}
-          horizontal={true}
-          enableEmptySections={true}
-          dataSource={dataSource}
-          renderRow={this.renderRow.bind(this)}
-          onLayout={this.onLayout.bind(this)}
-        />
-      </View>
-    );
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow) {
@@ -162,6 +123,44 @@ export default class ViewPager extends Component {
     } else {
       return element;
     }
+  }
+
+  render() {
+    let dataSource = this.state.dataSource;
+    let initialListSize = 20;
+    if (this.state.width && this.state.height) {
+      let list = this.props.pageDataArray;
+      if (!list) {
+        list = [];
+      }
+      dataSource = dataSource.cloneWithRows(list);
+      this.pageCount = list.length;
+      initialListSize = list.length;
+    }
+
+    let gestureResponder = this.gestureResponder;
+    if (!this.props.scrollEnabled || this.pageCount <= 0) {
+      gestureResponder = {};
+    }
+
+    return (
+      <View
+        {...this.props}
+        style={[this.props.style, {flex: 1}]}
+        {...gestureResponder}>
+        <ListView
+          style={{flex: 1}}
+          ref='innerListView'
+          initialListSize={initialListSize}
+          scrollEnabled={false}
+          horizontal={true}
+          enableEmptySections={true}
+          dataSource={dataSource}
+          renderRow={this.renderRow.bind(this)}
+          onLayout={this.onLayout.bind(this)}
+        />
+      </View>
+    );
   }
 
   onLayout(e) {
@@ -224,6 +223,12 @@ export default class ViewPager extends Component {
       page = Math.max(0, page);
       this.scrollToPage(page);
     }
+  }
+
+  onResponderGrant(evt, gestureState) {
+    this.scroller.forceFinished(true);
+    this.activeGesture = true;
+    this.onPageScrollStateChanged('dragging');
   }
 
   getScrollOffsetOfPage(page) {
