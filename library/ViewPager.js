@@ -127,7 +127,7 @@ export default class ViewPager extends Component {
 
   render() {
     let dataSource = this.state.dataSource;
-    let initialListSize = 20;
+    let initialListSize = 3;
     if (this.state.width && this.state.height) {
       let list = this.props.pageDataArray;
       if (!list) {
